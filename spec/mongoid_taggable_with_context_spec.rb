@@ -29,7 +29,8 @@ end
 
 class M3
   include Mongoid::Document
-  include Mongoid::TaggableWithContext::GroupBy::AggregationStrategy::RealTime
+  include Mongoid::TaggableWithContext
+  include Mongoid::TaggableWithContext::AggregationStrategy::RealTimeGroupBy
 
   field :user
   taggable group_by_field: :user
@@ -430,6 +431,22 @@ describe Mongoid::TaggableWithContext do
           include Mongoid::Document
           include Mongoid::TaggableWithContext
           taggable string_method: :foobar
+        end
+      end.to raise_error
+    end
+    it "should throw error if GroupBy::TaggableWithContext module is included" do
+      expect do
+        class Invalid
+          include Mongoid::Document
+          include Mongoid::TaggableWithContext::GroupBy::TaggableWithContext
+        end
+      end.to raise_error
+    end
+    it "should throw error if GroupBy::AggregationStrategy::RealTime module is included" do
+      expect do
+        class Invalid
+          include Mongoid::Document
+          include Mongoid::TaggableWithContext::GroupBy::AggregationStrategy::RealTime
         end
       end.to raise_error
     end

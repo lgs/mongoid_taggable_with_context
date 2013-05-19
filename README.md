@@ -2,6 +2,7 @@ mongoid_taggable_with_context
 =============================
 
 [![Build Status](https://secure.travis-ci.org/lgs/mongoid_taggable_with_context.png?branch=master)](http://travis-ci.org/lgs/mongoid_taggable_with_context) [![Dependency Status](https://gemnasium.com/lgs/mongoid_taggable_with_context.png?travis)](https://gemnasium.com/lgs/mongoid_taggable_with_context)
+[![Code Climate](https://codeclimate.com/github/lgs/mongoid_taggable_with_context.png)](https://codeclimate.com/github/lgs/mongoid_taggable_with_context)
 
 A tagging lib for Mongoid that allows for custom tagging along dynamic contexts. This gem was originally based on [mongoid_taggable](https://github.com/ches/mongoid_taggable) by Wilker Lúcio and Ches Martin. It has evolved substantially since that point, but all credit goes to them for the initial tagging functionality.
 
@@ -61,6 +62,11 @@ Example:
         The delimiter used when converting the tags to and from String format. Defaults to " "
 
 
+    * `@option [ :Symbol ] :group_by_field`
+
+        The Mongoid field to group by when RealTimeGroupBy aggregation is used.
+
+
     * `@option [ <various> ] :default, :as, :localize, etc.`
 
         Options for Mongoid #field method will be automatically passed
@@ -83,11 +89,11 @@ class Post
   field :content
 
   # default context is 'tags'.
-  # This creates #tags, #tags=, #tags_string instance methods
+  # This creates #tags, #tags=, #tag_string instance methods
   # separator is " " by default
   # #tags method returns an array of tags
   # #tags= methods accepts an array of tags or a separated string
-  # #tags_string method returns a separated string
+  # #tag_string method returns a separated string
   taggable
 
   # tagging for 'skills' context.
@@ -141,6 +147,7 @@ This lib presents the following aggregation strategies:
 
 * MapReduce
 * RealTime
+* RealTimeGroupBy
 
 The following document will automatically aggregate counts on all tag contexts.
 

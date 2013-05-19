@@ -39,25 +39,25 @@ module Mongoid::TaggableWithContext::AggregationStrategy
       end
 
       def recalculate_tag_weights!(context)
-        field = tag_options_for(context)[:array_field]
+        db_field = self.class.tag_options_for(context)[:db_field]
 
         map = <<-END
-          function() {
-            if (!this.#{field})return;
-            for (index in this.#{field})
-              emit(this.#{field}[index], 1);
-          }
+        function() {
+          if (!this.#{db_field})return;
+          for (index in this.#{db_field})
+            emit(this.#{db_field}[index], 1);
+        }
         END
 
         reduce = <<-END
-          function(key, values) {
-            var count = 0;
-            for (index in values) count += values[index];
-            return count;
-          }
+        function(key, values) {
+          var count = 0;
+          for (index in values) count += values[index];
+          return count;
+        }
         END
 
-        self.map_reduce(map, reduce).out(replace: aggregation_collection_for(context)).time
+        self.class.map_reduce(map, reduce).out(replace: aggregation_collection_for(context)).time
       end
 
       # adapted from https://github.com/jesuisbonbon/mongoid_taggable/commit/42feddd24dedd66b2b6776f9694d1b5b8bf6903d

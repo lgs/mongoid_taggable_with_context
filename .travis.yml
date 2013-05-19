@@ -1,8 +1,7 @@
 language: ruby
+bundler_args: --without development
 rvm:
-  #- 1.8.7
-  #- 1.9.2
   - 1.9.3
-  #- rbx-18mode
-
-services: mongodb
+  - 2.0.0
+services:
+  - mongodb

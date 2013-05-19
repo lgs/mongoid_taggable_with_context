@@ -1,7 +1,6 @@
-module Mongoid::TaggableWithContext::GroupBy::AggregationStrategy
-  module RealTime
+module Mongoid::TaggableWithContext::AggregationStrategy
+  module RealTimeGroupBy
     extend ActiveSupport::Concern
-    include Mongoid::TaggableWithContext::GroupBy::TaggableWithContext
     include Mongoid::TaggableWithContext::AggregationStrategy::RealTime
 
     module ClassMethods
@@ -35,7 +34,7 @@ module Mongoid::TaggableWithContext::GroupBy::AggregationStrategy
 
       protected
       def query(context, group_by)
-        aggregation_database_collection_for(context).find({value: {"$gt" => 0 }, group_by_field: group_by}).sort(tag_name_attribute.to_sym => 1)
+        aggregation_database_collection_for(context).find({value: {"$gt" => 0 }, group_by: group_by}).sort(tag_name_attribute.to_sym => 1)
       end
     end
 
@@ -43,9 +42,9 @@ module Mongoid::TaggableWithContext::GroupBy::AggregationStrategy
 
     def get_conditions(context, tag)
       conditions = {self.class.tag_name_attribute.to_sym => tag}
-      group_by_field = self.class.get_tag_group_by_field_for(context)
-      if group_by_field
-        conditions.merge!({group_by_field: self.send(group_by_field)})
+      group_by = self.class.get_tag_group_by_field_for(context)
+      if group_by
+        conditions.merge!({group_by: self.send(group_by)})
       end
       conditions
     end
