@@ -72,6 +72,12 @@ describe Mongoid::TaggableWithContext do
       @m.tags = %w[some new tags]
       @m.tags_string.should == "some new tags"
     end
+
+    it "should set tags from tags string" do
+      tags = "some cool tags"
+      @m.albums_string = tags
+      @m.albums.should == tags.split(' ')
+    end
     
     it "should retrieve artists string" do
       @m.artists = %w[some new tags]

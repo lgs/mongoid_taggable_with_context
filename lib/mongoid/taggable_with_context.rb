@@ -13,7 +13,11 @@ module Mongoid::TaggableWithContext
   end
 
   def tag_string_for(context)
-    self.read_attribute(context).join(self.class.get_tag_separator_for(context))
+    self.read_attribute(context).join(self.class.get_tag_separator_for(context)) rescue ""
+  end
+
+  def set_tag_string_for(context, value)
+    self.write_attribute(context, self.class.format_tags_for(context, value))
   end
 
   module ClassMethods
@@ -305,6 +309,10 @@ module Mongoid::TaggableWithContext
       generated_methods.module_eval do
         re_define_method("#{context}_string") do
           tag_string_for(context)
+        end
+
+        re_define_method("#{context}_string=") do |value|
+          set_tag_string_for(context, value)
         end
       end
     end
