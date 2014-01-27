@@ -25,6 +25,10 @@ module Mongoid::TaggableWithContext::AggregationStrategy
       def tags_for(context, conditions={})
         aggregation_database_collection_for(context).find({value: {"$gt" => 0 }}).sort(tag_name_attribute.to_sym => 1).to_a.map{ |t| t[tag_name_attribute] }
       end
+      
+      def tags_all_for(context, conditions={})
+        aggregation_database_collection_for(context).find().sort(tag_name_attribute.to_sym => 1).to_a.map{ |t| t[tag_name_attribute] }
+      end
 
       # retrieve the list of tag with weight(count), this is useful for
       # creating tag clouds
