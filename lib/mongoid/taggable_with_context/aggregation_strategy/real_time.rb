@@ -15,7 +15,11 @@ module Mongoid::TaggableWithContext::AggregationStrategy
       # Collection name for storing results of tag count aggregation
 
       def aggregation_database_collection_for(context)
-        (@aggregation_database_collection ||= {})[context] ||= Moped::Collection.new(self.collection.database, aggregation_collection_for(context))
+        if Mongoid::TaggableWithContext.mongoid2?
+          (@aggregation_database_collection ||= {})[context] ||= db.collection(aggregation_collection_for(context))
+        else
+          (@aggregation_database_collection ||= {})[context] ||= Moped::Collection.new(self.collection.database, aggregation_collection_for(context))
+        end
       end
 
       def aggregation_collection_for(context)
@@ -57,7 +61,11 @@ module Mongoid::TaggableWithContext::AggregationStrategy
         }
         END
 
-        self.class.map_reduce(map, reduce).out(replace: aggregation_collection_for(context)).time
+        if Mongoid::TaggableWithContext.mongoid2?
+          collection.master.map_reduce(map, reduce, :out => aggregation_collection_for(context))
+        else
+          self.class.map_reduce(map, reduce).out(replace: aggregation_collection_for(context)).time
+        end
       end
 
       # adapted from https://github.com/jesuisbonbon/mongoid_taggable/commit/42feddd24dedd66b2b6776f9694d1b5b8bf6903d
@@ -76,7 +84,11 @@ module Mongoid::TaggableWithContext::AggregationStrategy
     end
     
     def update_tags_aggregation(context, old_tags=[], new_tags=[])
-      coll = self.class.aggregation_database_collection_for(context)
+      if Mongoid::TaggableWithContext.mongoid2?
+        coll = self.class.db.collection(self.class.aggregation_collection_for(context))
+      else
+        coll = self.class.aggregation_database_collection_for(context)
+      end
 
       old_tags ||= []
       new_tags ||= []
@@ -86,10 +98,18 @@ module Mongoid::TaggableWithContext::AggregationStrategy
 
       
       tags_removed.each do |tag|
-        coll.find(get_conditions(context, tag)).upsert({'$inc' => {value: -1}})
+        if Mongoid::TaggableWithContext.mongoid2?
+          coll.update(get_conditions(context, tag), {'$inc' => {:value => -1}}, :upsert => true)
+        else
+          coll.find(get_conditions(context, tag)).upsert({'$inc' => {value: -1}})
+        end
       end
       tags_added.each do |tag|
-        coll.find(get_conditions(context, tag)).upsert({'$inc' => {value: 1}})
+        if Mongoid::TaggableWithContext.mongoid2?
+          coll.update(get_conditions(context, tag), {'$inc' => {:value => 1}}, :upsert => true)
+        else
+          coll.find(get_conditions(context, tag)).upsert({'$inc' => {value: 1}})
+        end
       end
       #coll.find({_id: {"$in" => tags_removed}}).update({'$inc' => {:value => -1}}, [:upsert])
       #coll.find({_id: {"$in" => tags_added}}).update({'$inc' => {:value => 1}}, [:upsert])

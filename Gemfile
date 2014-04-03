@@ -1,12 +1,14 @@
 source 'http://rubygems.org'
 
-gem 'mongoid', '>= 3.0.0'
+gemspec
 
-group :test, :development do
-  gem 'rake'
-  gem 'rspec'
-  gem 'yard'
-  gem 'bundler', '>= 1.0.0'
-  gem 'jeweler'
+case version = ENV['MONGOID_VERSION'] || "~> 3.1"
+  when /4/
+    gem "mongoid", :github => 'mongoid/mongoid'
+  when /3/
+    gem "mongoid", "~> 3.1"
+  when /2/
+    gem "mongoid", "~> 2.8"
+  else
+    gem "mongoid", version
 end
-

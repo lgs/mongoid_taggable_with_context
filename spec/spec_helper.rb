@@ -12,5 +12,12 @@ RSpec.configure do |config|
 end
 
 Mongoid.configure do |config|
-  config.connect_to("mongoid_taggable_with_context_test")
+  if Mongoid::TaggableWithContext.mongoid2?
+    database = Mongo::Connection.new.db("mongoid_taggable_with_context_test")
+    database.add_user("mongoid", "test")
+    config.master = database
+    config.logger = nil
+  else
+    config.connect_to("mongoid_taggable_with_context_test")
+  end
 end

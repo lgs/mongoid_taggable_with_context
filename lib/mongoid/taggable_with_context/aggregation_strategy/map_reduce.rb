@@ -11,7 +11,11 @@ module Mongoid::TaggableWithContext::AggregationStrategy
       # Collection name for storing results of tag count aggregation
       
       def aggregation_database_collection_for(context)
-        (@aggregation_database_collection ||= {})[context] ||= Moped::Collection.new(self.collection.database, aggregation_collection_for(context))
+        if Mongoid::TaggableWithContext.mongoid2?
+          (@aggregation_database_collection ||= {})[context] ||= db.collection(aggregation_collection_for(context))
+        else
+          (@aggregation_database_collection ||= {})[context] ||= Moped::Collection.new(self.collection.database, aggregation_collection_for(context))
+        end
       end
 
       def aggregation_collection_for(context)
@@ -65,7 +69,11 @@ module Mongoid::TaggableWithContext::AggregationStrategy
         }
       END
 
-      self.class.map_reduce(map, reduce).out(replace: aggregation_collection_for(context)).time
+      if Mongoid::TaggableWithContext.mongoid2?
+        collection.master.map_reduce(map, reduce, :out => aggregation_collection_for(context))
+      else
+        self.class.map_reduce(map, reduce).out(replace: aggregation_collection_for(context)).time
+      end
     end
   end
 end

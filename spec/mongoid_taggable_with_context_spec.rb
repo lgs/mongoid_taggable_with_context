@@ -13,7 +13,8 @@ class M1
   include Mongoid::Document
   include Mongoid::TaggableWithContext
   include Mongoid::TaggableWithContext::AggregationStrategy::MapReduce
-  
+
+  field :user
   taggable
   taggable :a, as: :artists
 end
@@ -22,7 +23,8 @@ class M2
   include Mongoid::Document
   include Mongoid::TaggableWithContext
   include Mongoid::TaggableWithContext::AggregationStrategy::RealTime
-  
+
+  field :user
   taggable
   taggable :artists
 end
