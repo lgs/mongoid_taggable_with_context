@@ -185,7 +185,11 @@ module Mongoid::TaggableWithContext
     #
     # @since 1.1.1
     def mongoid_field_options(options = {})
-      options.slice(*::Mongoid::Fields::Validators::Macro::OPTIONS).merge!(type: Array)
+      if Mongoid::TaggableWithContext.mongoid2?
+        options.merge!(type: Array) # Skip validation for mongoid2
+      else
+        options.slice(*::Mongoid::Fields::Validators::Macro::OPTIONS).merge!(type: Array)
+      end
     end
 
     # Creates an index for the underlying Mongoid field.
@@ -194,7 +198,11 @@ module Mongoid::TaggableWithContext
     #
     # @since 1.1.1
     def create_taggable_mongoid_index(name)
-      index({ name => 1 }, { background: true })
+      if Mongoid::TaggableWithContext.mongoid2?
+        index :name, background: true
+      else
+        index({ name => 1 }, { background: true })
+      end
     end
 
     # Defines all accessor methods for the taggable context at both
