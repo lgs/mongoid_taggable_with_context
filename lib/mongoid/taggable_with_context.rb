@@ -1,7 +1,7 @@
 module Mongoid::TaggableWithContext
 
   def self.mongoid5_or_greater?
-    Gem::Version.new(Mongoid::VERSION) > Gem::Version.new('5.0.0')
+    Gem::Version.new(Mongoid::VERSION) >= Gem::Version.new('5.0.0')
   end
 
   extend ActiveSupport::Concern
